@@ -1,56 +1,15 @@
+/* Custom Styles */
 body {
   font-family: Arial, sans-serif;
-  text-align: center;
-  margin-top: 30px;
-  background-color: #f0f0f0;
 }
 
-/* Game container dimensions and relative positioning for dynamic button placement */
 #gameContainer {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  margin: 0 auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  /* The card in index.html provides most of the styling */
 }
 
-p {
-  font-size: 1.2em;
-  margin: 10px 0;
-}
-
-button {
-  font-size: 1.2em;
-  padding: 10px 20px;
-  margin: 10px;
-  cursor: pointer;
-  border: none;
-  border-radius: 4px;
-}
-
-/* Styling for each button */
-#startGameButton {
-  background-color: #009688;
-  color: #fff;
-}
-#tapButton {
-  background-color: #ff9800;
-  color: #fff;
-}
-#restartButton {
-  background-color: #2196F3;
-  color: #fff;
-}
-#installButton {
-  background-color: #4CAF50;
-  color: #fff;
-}
-
-/* Simple tap animation for visual feedback */
 .tapped {
   transform: scale(1.1);
   transition: transform 0.1s ease-in-out;
 }
+
+/* You can add more custom styles as needed */

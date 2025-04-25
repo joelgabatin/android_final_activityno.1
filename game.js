@@ -1,7 +1,7 @@
 // Game state variables
 let currentLevel = 1;
 let levelScore = 0;
-let globalScore = 0;
+let globalScore = 0; // Total taps
 let timeLeft;
 let timerInterval;
 
@@ -28,7 +28,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     console.log('[DEBUG] Install button clicked');
     installBtn.hidden = true;
     deferredPrompt.prompt();
-
     deferredPrompt.userChoice.then(choiceResult => {
       console.log('[DEBUG] User choice:', choiceResult);
       deferredPrompt = null;
@@ -36,8 +35,31 @@ window.addEventListener('beforeinstallprompt', (e) => {
   });
 });
 
-// Start a level with adjusted time based on the level.
-// For level 1: 10 seconds, level 2: 9 seconds, etc., with a minimum of 5 seconds.
+function startGame() {
+  // ... existing start game logic ...
+  
+  // Update the page title to reflect the current level
+  document.title = `Level ${level}`;
+}
+
+function endGame() {
+  // ... existing end game logic ...
+  
+  // Revert the page title to the default
+  document.title = 'Tap the Button Game';
+}
+
+function levelUp() {
+  level++;
+  // ... existing level-up logic ...
+  
+  // Update the page title to reflect the new level
+  document.title = `Level ${level}`;
+}
+
+
+// Start a level with adjusted time based on level.
+// Level 1: 10 seconds; Level 2: 9 seconds; ... minimum of 5 seconds.
 function startLevel() {
   levelDisplay.textContent = currentLevel;
   levelScore = 0;
@@ -50,9 +72,8 @@ function startLevel() {
   levelRequirementDisplay.textContent = levelTarget;
   
   restartButton.hidden = true;
-  tapButton.hidden = false;  // Show tap button during game
+  tapButton.hidden = false; // Show tap button during game
   
-  // Clear any old interval before starting a new one
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     timeLeft--;
@@ -64,46 +85,55 @@ function startLevel() {
   }, 1000);
 }
 
-// End the current level, check if target is met, and then progress or end game
+// End the level; if failed, update leaderboard.
 function endLevel() {
   const levelTarget = 10 * currentLevel;
-  // Hide the tap button since the time is up
   tapButton.hidden = true;
   
   if (levelScore >= levelTarget) {
     alert(`Level ${currentLevel} completed with ${levelScore} taps!`);
     currentLevel++;
-    // After level completion, show Start Game again so player manually starts next level
     startGameButton.hidden = false;
   } else {
-    alert(`Game Over! You achieved ${levelScore} taps on level ${currentLevel}. Total score: ${globalScore}`);
+    alert(`Game Over! You achieved ${levelScore} taps on level ${currentLevel}. Total taps: ${globalScore}`);
+    updateHighScores(globalScore, currentLevel);
     restartButton.hidden = false;
   }
 }
 
-// Tap button event: increase the score, update UI, reposition target, and provide feedback.
+// Update high scores in localStorage.
+function updateHighScores(score, level) {
+  let highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+  const newRecord = {
+    score,
+    level,
+    date: new Date().toLocaleString()
+  };
+  highScores.push(newRecord);
+  highScores.sort((a, b) => b.score - a.score);
+  highScores = highScores.slice(0, 10); // Keep top 10
+  localStorage.setItem('highScores', JSON.stringify(highScores));
+}
+
+// Tap button event increases tap counts and repositions the target.
 tapButton.addEventListener("click", () => {
   if (timeLeft > 0) {
     levelScore++;
     globalScore++;
     scoreDisplay.textContent = globalScore;
-    
-    // Reposition the tap button randomly inside the container.
     repositionTarget();
-    
-    // Visual feedback animation.
     tapButton.classList.add("tapped");
     setTimeout(() => tapButton.classList.remove("tapped"), 100);
   }
 });
 
-// Start game button event: hides itself and starts the level.
+// Start game button event.
 startGameButton.addEventListener("click", () => {
   startGameButton.hidden = true;
   startLevel();
 });
 
-// Restart game resets level and global score, and shows the start button.
+// Restart game resets state.
 restartButton.addEventListener("click", () => {
   currentLevel = 1;
   globalScore = 0;
@@ -111,23 +141,17 @@ restartButton.addEventListener("click", () => {
   clearInterval(timerInterval);
   timerInterval = null;
   tapButton.style.position = "static";
-  // Show the start button so the player can begin again.
   startGameButton.hidden = false;
 });
 
-// Repositions the tap button randomly within the game container boundaries.
+// Reposition the tap button randomly within the container.
 function repositionTarget() {
   const containerRect = gameContainer.getBoundingClientRect();
   const buttonRect = tapButton.getBoundingClientRect();
-  
-  // Calculate maximum left and top values within the container.
   const maxLeft = containerRect.width - buttonRect.width;
   const maxTop = containerRect.height - buttonRect.height;
-  
   const randomLeft = Math.random() * maxLeft;
   const randomTop = Math.random() * maxTop;
-  
-  // Position the button absolutely.
   tapButton.style.position = "absolute";
   tapButton.style.left = randomLeft + "px";
   tapButton.style.top = randomTop + "px";

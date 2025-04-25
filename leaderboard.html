@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <title>Leaderboard - Tap Game</title>
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <h1 class="text-center mb-4">High Scores</h1>
+    <!-- Leaderboard container styled as a Bootstrap card -->
+    <div id="leaderboardContainer" class="card mx-auto" style="max-width: 400px;">
+      <div class="card-body">
+        <ul id="leaderboardList" class="list-group mb-3">
+          <!-- Leaderboard records will be inserted here dynamically -->
+        </ul>
+        <div class="d-grid gap-2">
+          <button id="downloadLeaderboardButton" class="btn btn-secondary">Download Leaderboard JSON</button>
+          <button id="backToGameButton" class="btn btn-primary" onclick="window.location.href='index.html'">Back to Game</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Retrieve high scores from localStorage.
+    const leaderboardList = document.getElementById("leaderboardList");
+    const highScores = JSON.parse(localStorage.getItem('highScores')) || [];
+    
+    if (highScores.length === 0) {
+      leaderboardList.innerHTML = "<li class='list-group-item'>No high scores yet.</li>";
+    } else {
+      highScores.forEach((record, index) => {
+        const li = document.createElement("li");
+        li.className = 'list-group-item';
+        li.textContent = `${index + 1}. ${record.score} taps at level ${record.level} on ${record.date}`;
+        leaderboardList.appendChild(li);
+      });
+    }
+    
+    // Download leaderboard as JSON file.
+    const downloadBtn = document.getElementById("downloadLeaderboardButton");
+    downloadBtn.addEventListener("click", () => {
+      const highScoresStr = localStorage.getItem('highScores') || "[]";
+      const blob = new Blob([highScoresStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "leaderboard.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+  </script>
+</body>
+</html>
